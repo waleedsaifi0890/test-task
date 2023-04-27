@@ -53,17 +53,20 @@ describe('events', () => {
 
     const result = response.body;
 
+    console.log(result);
     expect(result.length).toBe(3);
     expect(result[0].name).toBe('Laravel convention ' + date1);
     expect(result[0].workshops[0].name).toBe(
       'Illuminate your knowledge of the laravel code base',
     );
     expect(result[1].name).toBe('Laravel convention ' + date2);
+
     expect(result[1].workshops[0].name).toBe(
-      'The new Eloquent - load more with less',
-    );
-    expect(result[1].workshops[1].name).toBe(
       'AutoEx - handles exceptions 100% automatic',
+    );
+
+    expect(result[1].workshops[1].name).toBe(
+      'The new Eloquent - load more with less',
     );
     expect(result[2].name).toBe('React convention ' + date2);
     expect(result[2].workshops[0].name).toBe(

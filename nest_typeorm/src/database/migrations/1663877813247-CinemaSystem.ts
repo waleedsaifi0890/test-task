@@ -1,4 +1,9 @@
-import { MigrationInterface, QueryRunner } from 'typeorm';
+import {
+  MigrationInterface,
+  QueryRunner,
+  Table,
+  TableForeignKey,
+} from 'typeorm';
 
 export class CinemaSystem1663877813247 implements MigrationInterface {
   /**
@@ -30,9 +35,276 @@ export class CinemaSystem1663877813247 implements MigrationInterface {
    * As a user I want to know where I'm sitting on my ticket
    * As a cinema owner I dont want to configure the seating for every show
    */
+
   public async up(queryRunner: QueryRunner): Promise<void> {
-    throw new Error('TODO: implement migration in task 4');
+    await queryRunner.createTable(
+      new Table({
+        name: 'film',
+        columns: [
+          {
+            name: 'id',
+            type: 'serial',
+            isPrimary: true,
+          },
+          {
+            name: 'title',
+            type: 'varchar',
+            length: '255',
+            isNullable: false,
+          },
+          {
+            name: 'duration_minutes',
+            type: 'integer',
+            isNullable: false,
+          },
+        ],
+      }),
+    );
+
+    await queryRunner.createTable(
+      new Table({
+        name: 'showtime',
+        columns: [
+          {
+            name: 'id',
+            type: 'serial',
+            isPrimary: true,
+          },
+          {
+            name: 'film_id',
+            type: 'integer',
+            isNullable: false,
+          },
+          {
+            name: 'start_time',
+            type: 'timestamp',
+            isNullable: false,
+          },
+          {
+            name: 'available_seats',
+            type: 'integer',
+            isNullable: false,
+          },
+        ],
+      }),
+    );
+
+    await queryRunner.createTable(
+      new Table({
+        name: 'showroom',
+        columns: [
+          {
+            name: 'id',
+            type: 'serial',
+            isPrimary: true,
+          },
+          {
+            name: 'name',
+            type: 'varchar',
+            length: '255',
+            isNullable: false,
+          },
+        ],
+      }),
+    );
+
+    await queryRunner.createTable(
+      new Table({
+        name: 'showtime_showroom',
+        columns: [
+          {
+            name: 'showtime_id',
+            type: 'integer',
+            isNullable: false,
+            isPrimary: true,
+          },
+          {
+            name: 'showroom_id',
+            type: 'integer',
+            isNullable: false,
+            isPrimary: true,
+          },
+        ],
+      }),
+    );
+
+    await queryRunner.createTable(
+      new Table({
+        name: 'pricing',
+        columns: [
+          {
+            name: 'id',
+            type: 'serial',
+            isPrimary: true,
+          },
+          {
+            name: 'showtime_id',
+            type: 'integer',
+            isNullable: false,
+          },
+          {
+            name: 'price',
+            type: 'decimal',
+            precision: 5,
+            scale: 2,
+            isNullable: false,
+          },
+          {
+            name: 'vip_premium',
+            type: 'decimal',
+            precision: 3,
+            scale: 2,
+            isNullable: false,
+            default: 0,
+          },
+          {
+            name: 'couple_premium',
+            type: 'decimal',
+            precision: 3,
+            scale: 2,
+            isNullable: false,
+            default: 0,
+          },
+          {
+            name: 'super_vip_premium',
+            type: 'decimal',
+            precision: 3,
+            scale: 2,
+            isNullable: false,
+            default: 0,
+          },
+        ],
+      }),
+    );
+
+    await queryRunner.createTable(
+      new Table({
+        name: 'seat_type',
+        columns: [
+          {
+            name: 'id',
+            type: 'serial',
+            isPrimary: true,
+          },
+          {
+            name: 'name',
+            type: 'varchar',
+            length: '255',
+            isNullable: false,
+          },
+          {
+            name: 'premium_percentage',
+            type: 'decimal',
+            precision: 3,
+            scale: 2,
+            isNullable: false,
+            default: 0,
+          },
+        ],
+      }),
+    );
+
+    await queryRunner.createTable(
+      new Table({
+        name: 'seat',
+        columns: [
+          {
+            name: 'id',
+            type: 'serial',
+            isPrimary: true,
+          },
+          {
+            name: 'showtime_id',
+            type: 'integer',
+            isNullable: false,
+          },
+          {
+            name: 'seat_type_id',
+            type: 'integer',
+            isNullable: false,
+          },
+          {
+            name: 'row_number',
+            type: 'integer',
+            isNullable: false,
+          },
+          {
+            name: 'seat_number',
+            type: 'integer',
+            isNullable: false,
+          },
+        ],
+      }),
+    );
+
+    await queryRunner.createForeignKey(
+      'showtime',
+      new TableForeignKey({
+        columnNames: ['film_id'],
+        referencedColumnNames: ['id'],
+        referencedTableName: 'film',
+        onDelete: 'CASCADE',
+      }),
+    );
+
+    await queryRunner.createForeignKey(
+      'showtime_showroom',
+      new TableForeignKey({
+        columnNames: ['showtime_id'],
+        referencedColumnNames: ['id'],
+        referencedTableName: 'showtime',
+        onDelete: 'CASCADE',
+      }),
+    );
+
+    await queryRunner.createForeignKey(
+      'showtime_showroom',
+      new TableForeignKey({
+        columnNames: ['showroom_id'],
+        referencedColumnNames: ['id'],
+        referencedTableName: 'showroom',
+        onDelete: 'CASCADE',
+      }),
+    );
+
+    await queryRunner.createForeignKey(
+      'pricing',
+      new TableForeignKey({
+        columnNames: ['showtime_id'],
+        referencedColumnNames: ['id'],
+        referencedTableName: 'showtime',
+        onDelete: 'CASCADE',
+      }),
+    );
+
+    await queryRunner.createForeignKey(
+      'seat',
+      new TableForeignKey({
+        columnNames: ['showtime_id'],
+        referencedColumnNames: ['id'],
+        referencedTableName: 'showtime',
+        onDelete: 'CASCADE',
+      }),
+    );
+
+    await queryRunner.createForeignKey(
+      'seat',
+      new TableForeignKey({
+        columnNames: ['seat_type_id'],
+        referencedColumnNames: ['id'],
+        referencedTableName: 'seat_type',
+        onDelete: 'CASCADE',
+      }),
+    );
   }
 
-  public async down(queryRunner: QueryRunner): Promise<void> {}
+  public async down(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.dropTable('seat');
+    await queryRunner.dropTable('seat_type');
+    await queryRunner.dropTable('pricing');
+    await queryRunner.dropTable('showtime_showroom');
+    await queryRunner.dropTable('showroom');
+    await queryRunner.dropTable('showtime');
+    await queryRunner.dropTable('film');
+  }
 }

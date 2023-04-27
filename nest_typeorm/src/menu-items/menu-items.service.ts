@@ -86,6 +86,24 @@ export class MenuItemsService {
     ]
   */
   async getMenuItems() {
-    throw new Error('TODO in task 3');
+    const menuItems = await this.menuItemRepository.find();
+    return this.buildMenu(menuItems);
+  }
+
+  private buildMenu(
+    menuItems: MenuItem[],
+    parentId: number | null = null,
+  ): MenuItem[] {
+    return menuItems
+      .filter((item) => item.parentId === parentId)
+      .map((item) => ({
+        ...item,
+        children: this.buildMenu(menuItems, item.id),
+      }));
+  }
+
+  async createMenuItem(item: MenuItem): Promise<MenuItem> {
+    const menuItem = this.menuItemRepository.create(item);
+    return this.menuItemRepository.save(menuItem);
   }
 }
